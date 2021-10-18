@@ -35,6 +35,7 @@ Register register = Register(() {
   XmlLayout.registerEnum(VerticalDirection.values);
   XmlLayout.registerEnum(TextDirection.values);
   XmlLayout.registerEnum(TextBaseline.values);
+  XmlLayout.registerEnum(BoxFit.values);
   XmlLayout.register("row", (node, key) {
     return Row(
       key: key,
@@ -100,6 +101,7 @@ Register register = Register(() {
     return DWidget(
       script: data.controller.script,
       file: path.normalize(file),
+      controllerBuilder: data.controllerBuilder,
     );
   });
   XmlLayout.registerInline(Color, "hex", false, (node, method) {
@@ -172,15 +174,16 @@ Register register = Register(() {
         builder: (context, index) {
           return DWidget(
             script: data.controller.script,
-            file: file
+            file: file,
+            controllerBuilder: data.controllerBuilder,
           );
         },
-        itemCount: node.s<int>('itemCount')!
+        itemCount: node.s<int>('itemCount', 0)!
       );
     } else {
       return DListView(
         builder: node.s<IndexedWidgetBuilder>('builder')!,
-        itemCount: node.s<int>('itemCount')!
+        itemCount: node.s<int>('itemCount', 0)!
       );
     }
   });
@@ -193,13 +196,16 @@ Register register = Register(() {
       onTap: node.s<VoidCallback>("onTap"),
     );
   });
-  XmlLayout.register("img", (node, key) {
+  var imgBuilder = (node, key) {
     return DImage(
       src: node.s<String>("src")!,
-      width: node.s<double>("width"),
-      height: node.s<double>("height"),
+      width: node.s<double>("width", 48.0),
+      height: node.s<double>("height", 48.0),
+      fit: node.s<BoxFit>("fit", BoxFit.contain)!,
     );
-  });
+  };
+  XmlLayout.register("img", imgBuilder);
+  XmlLayout.register("image", imgBuilder);
   XmlLayout.register("callback", (node, key) {
     return () {
       var data = DWidget.of(node.context);

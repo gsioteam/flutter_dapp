@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  js_script: ^0.0.13
+  js_script: ^0.0.16
   xml_layout: ^2.3.3
-  cached_network_image: ^2.5.1
+  cached_network_image: ^3.1.0
 
 dev_dependencies:
   flutter_test:

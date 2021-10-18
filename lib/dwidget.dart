@@ -1,102 +1,17 @@
 
-import 'dart:collection';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dapp/controller.dart';
 import 'package:js_script/js_script.dart';
 import 'package:path/path.dart' as path;
 import 'package:xml_layout/xml_layout.dart';
+import 'js_wrap.dart';
 
-wrap(object) {
-  if (object is JsValue) {
-    if (object.isArray) {
-      return DataList(object);
-    } else {
-      return DataMap(object);
-    }
-  } else {
-    return object;
-  }
-}
-
-unwrap(object) {
-  if (object is DataMap) {
-    return object.value;
-  } else if (object is DataList) {
-    return object.value;
-  } else {
-    return object;
-  }
-}
-
-class DataList with List, ListMixin {
-  JsValue value;
-  DataList(this.value);
-
-  @override
-  int get length => value["length"];
-  set length(int len) => value["length"] = len;
-
-  @override
-  operator [](int index) {
-    return wrap(value[index]);
-  }
-
-  @override
-  void operator []=(int index, value) {
-    this.value[index] = unwrap(value);
-  }
-
-}
-
-class DataMap with Map, MapMixin {
-  JsValue value;
-
-  DataMap(this.value);
-
-  @override
-  operator [](Object? key) {
-    return wrap(value[key]);
-  }
-
-  @override
-  void operator []=(key, value) {
-    this.value[key] = unwrap(value);
-  }
-
-  @override
-  void clear() {
-  }
-
-  @override
-  Iterable get keys sync* {
-    for (var key in value.getOwnPropertyNames()) {
-      yield key;
-    }
-  }
-
-  @override
-  remove(Object? key) {
-  }
-
-}
-
-class ContextData {
-  final JsValue controller;
-  final String file;
-
-  ContextData({
-    required this.controller,
-    required this.file
-  });
-
-  String relativePath(String file) {
-    return path.join(this.file, '..', file);
-  }
-}
+typedef ControllerBuilder = dynamic Function(JsScript script, DWidgetState state);
 
 class _InheritedContext extends InheritedWidget {
-  final ContextData data;
+  final DWidgetState data;
 
   _InheritedContext({
     Key? key,
@@ -120,19 +35,21 @@ class _InheritedContext extends InheritedWidget {
 class DWidget extends StatefulWidget {
   final String file;
   final JsScript script;
-  final Map<String, dynamic>? initializeData;
+  final dynamic initializeData;
+  final ControllerBuilder controllerBuilder;
 
   DWidget({
     Key? key,
     required this.script,
     required this.file,
-    this.initializeData
+    this.initializeData,
+    required this.controllerBuilder,
   }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => DWidgetState();
 
-  static ContextData? of(BuildContext context) {
+  static DWidgetState? of(BuildContext context) {
     _InheritedContext? res = context.dependOnInheritedWidgetOfExactType<_InheritedContext>();
     return res?.data;
   }
@@ -142,8 +59,10 @@ class DWidgetState extends State<DWidget> {
 
   late String template;
   late JsValue controller;
-  late ContextData _contextData;
+  late String file;
   bool _ready = false;
+
+  JsScript get script => widget.script;
 
   void updateData(VoidCallback callback) {
     if (_ready) {
@@ -156,7 +75,7 @@ class DWidgetState extends State<DWidget> {
   @override
   void initState() {
     super.initState();
-    String file = path.join(path.dirname(widget.file), "${path.basenameWithoutExtension(widget.file)}.xml");
+    file = path.join(path.dirname(widget.file), "${path.basenameWithoutExtension(widget.file)}.xml");
 
     template = widget.script.fileSystems.loadCode(file)!;
     file = path.extension(widget.file).isEmpty ? "${widget.file}.js" : widget.file;
@@ -168,14 +87,10 @@ class DWidgetState extends State<DWidget> {
         Controller(widget.script)
           ..state = this,
         classFunc: jsClass)..retain();
-    _contextData = ContextData(
-      controller: controller,
-      file: file,
-    );
     try {
       controller.invoke("load", [widget.initializeData ?? {}]);
     } catch (e) {
-      print(e);
+      print("[$runtimeType] $e");
     }
 
     _ready = true;
@@ -214,7 +129,24 @@ class DWidgetState extends State<DWidget> {
           print("Unkown tag ${node.name}");
         },
       ),
-      data: _contextData,
+      data: this,
     );
   }
+
+  String relativePath(String src) => path.normalize(path.join(file, '..', src));
+
+  Future navigateTo(String src, {
+    JsValue? data,
+  }) {
+    return Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return DWidget(
+        file: relativePath(src),
+        script: widget.script,
+        initializeData: data,
+        controllerBuilder: widget.controllerBuilder,
+      );
+    }));
+  }
+
+  ControllerBuilder get controllerBuilder => widget.controllerBuilder;
 }

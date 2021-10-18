@@ -6,28 +6,48 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dapp/flutter_dapp.dart';
 import 'package:js_script/js_script.dart';
 
-class ArchiveFileSystem extends JsFileSystem {
-  final Archive archive;
+class AssetFileSystem extends DappFileSystem {
+  final String prefix;
+  Map<String, ByteData> map = {};
+  late Future<void> _ready;
+  Future<void> get ready => _ready;
 
-  ArchiveFileSystem(this.archive);
+  AssetFileSystem({
+    required BuildContext context,
+    required this.prefix,
+  }) {
+    _ready = _setup(context);
+  }
+
+  Future<void> _setup(BuildContext context) async {
+    final manifestJson = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
+    final list = json.decode(manifestJson).keys.where((String key) => key.startsWith(prefix));
+    for (String path in list) {
+      String str = path.replaceFirst(prefix, '');
+      if (str[0] != '/') str = '/' + str;
+      map[str] = await rootBundle.load(path);
+    }
+  }
 
   @override
   bool exist(String filename) {
-    if (filename[0] == '/') filename = filename.substring(1);
-    return archive.findFile(filename) != null;
+    return map.containsKey(filename);
   }
 
   @override
   String? read(String filename) {
-    if (filename[0] == '/') filename = filename.substring(1);
-    var file = archive.findFile(filename);
-    if (file != null) {
-      return utf8.decode(file.content);
+    var data = map[filename];
+    if (data != null) {
+      return utf8.decode(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
     } else {
       return null;
     }
   }
 
+  @override
+  ByteData? readBytes(String filename) {
+    return map[filename];
+  }
 }
 
 void main() {
@@ -65,21 +85,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  Future<Archive> _loadData() async {
-    var data = await rootBundle.load("assets/test.zip");
-    return ZipDecoder().decodeBytes(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+  Future<AssetFileSystem> _loadData(BuildContext context) async {
+    AssetFileSystem fileSystem = AssetFileSystem(
+      context: context,
+      prefix: 'assets/test'
+    );
+    await fileSystem.ready;
+    return fileSystem;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Archive>(
-      future: _loadData(),
+    return FutureBuilder<AssetFileSystem>(
+      future: _loadData(context),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return DApp(
               entry: '/main',
               fileSystems: [
-                ArchiveFileSystem(snapshot.requireData),
+                snapshot.requireData,
               ]
           );
         } else {

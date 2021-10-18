@@ -5,6 +5,7 @@ import 'package:js_script/js_script.dart';
 import 'package:js_script/types.dart';
 
 import 'dwidget.dart';
+import 'js_wrap.dart';
 
 class Controller {
   DWidgetState? state;
@@ -22,6 +23,17 @@ class Controller {
     }
   }
 
+  Future navigateTo(String src, JsValue ops) async {
+    if (state != null) {
+      ops.retain();
+      var ret = await state!.navigateTo(
+        src,
+        data: ops["data"],
+      );
+      ops.release();
+      return ret;
+    }
+  }
 }
 
 ClassInfo controllerClass = ClassInfo<Controller>(
@@ -31,5 +43,6 @@ ClassInfo controllerClass = ClassInfo<Controller>(
   },
   functions: {
     "setState": JsFunction.ins((obj, argv) => obj.setState(argv[0])),
+    "navigateTo": JsFunction.ins((obj, argv) => obj.navigateTo(argv[0], argv[1]))
   }
 );
