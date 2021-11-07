@@ -40,6 +40,7 @@ class MainController extends Controller {
                 }
             ]
         };
+        this.testLoad();
     }
 
     async onPressed(index) {
@@ -51,6 +52,11 @@ class MainController extends Controller {
             }
         });
         console.log("After push");
+    }
+
+    async testLoad() {
+        let res = await fetch("https://api.github.com/repos/gsioteam/kumav_env/issues/1/comments");
+        console.log(await res.text());
     }
 }
 

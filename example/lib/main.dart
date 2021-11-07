@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dapp/extensions/extension.dart';
+import 'package:flutter_dapp/extensions/fetch.dart';
 import 'package:flutter_dapp/flutter_dapp.dart';
 import 'package:js_script/js_script.dart';
 
@@ -85,33 +87,67 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+class LoadData {
+  AssetFileSystem fileSystem;
+  List<Extension> extensions;
+
+  LoadData(this.fileSystem, this.extensions);
+}
+
 class _MyHomePageState extends State<MyHomePage> {
 
-  Future<AssetFileSystem> _loadData(BuildContext context) async {
+  late Future<LoadData> _future;
+
+  Future<LoadData> _loadData(BuildContext context) async {
     AssetFileSystem fileSystem = AssetFileSystem(
       context: context,
       prefix: 'assets/test'
     );
     await fileSystem.ready;
-    return fileSystem;
+
+    JsScript script = JsScript();
+    // print("test 1");
+    // Fetch fetch = Fetch();
+    // await fetch.initialize(context, script);
+    // print("test 2");
+    script.dispose();
+
+    return LoadData(
+      fileSystem,
+      [
+        // fetch,
+      ]
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<AssetFileSystem>(
-      future: _loadData(context),
+    return FutureBuilder<LoadData>(
+      future: _future,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          var data = snapshot.requireData;
           return DApp(
               entry: '/main',
               fileSystems: [
-                snapshot.requireData,
-              ]
+                data.fileSystem,
+              ],
+            onInitialize: (script) {
+              for (var d in data.extensions) {
+                d.attachTo(script);
+              }
+            },
           );
         } else {
           return Container();
         }
       }
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _future = _loadData(context);
   }
 }

@@ -175,6 +175,8 @@ ClassInfo requestClass = ClassInfo<JsRequest>(
     }
 );
 
+///
+/// Contains `fetch`, `XMLHTTPRequest` functions.
 class Fetch extends Extension {
   @override
   Future<String> loadCode(BuildContext context) {

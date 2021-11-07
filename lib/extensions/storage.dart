@@ -26,6 +26,8 @@ ClassInfo storageClass = ClassInfo<LocalStorage>(
     }
 );
 
+///
+/// The implementation of `localStorage`
 class Storage extends Extension {
 
   LocalStorage localStorage;
