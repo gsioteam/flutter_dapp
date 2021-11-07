@@ -10,9 +10,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  js_script: ^0.0.16
-  xml_layout: ^2.3.3
+  js_script: ^0.0.30
+  xml_layout: ^2.3.7
   cached_network_image: ^3.1.0
+  fluttertoast: ^8.0.8
+  dio: ^4.0.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +36,11 @@ flutter:
   #
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
+  assets:
+    - js_env/index.min.js
+    - js_env/fetch.min.js
+    - js_env/storage.min.js
+    - js_env/html.min.js
 
   # To add custom fonts to your package, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

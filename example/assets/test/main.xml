@@ -7,13 +7,13 @@
         </appbar>
     </attr:appbar>
     <attr:body>
-        <listview itemCount="length(${list})">
+        <list-view itemCount="length(${list})">
             <attr:builder>
                 <Function returnType='Widget'>
                     <script>
                         set("item", ${list[args[1]]})
                     </script>
-                    <listtile>
+                    <list-item>
                         <attr:onTap>
                             <callback function="onPressed" args="array(${args[1]})"/>
                         </attr:onTap>
@@ -26,9 +26,9 @@
                         <attr:subtitle>
                             <text>${item.subtitle}</text>
                         </attr:subtitle>
-                    </listtile>
+                    </list-item>
                 </Function>
             </attr:builder>
-        </listview>
+        </list-view>
     </attr:body>
 </scaffold>

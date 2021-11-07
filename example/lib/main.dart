@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:js_script/js_script.dart';
 
 class AssetFileSystem extends DappFileSystem {
   final String prefix;
-  Map<String, ByteData> map = {};
+  Map<String, Uint8List> map = {};
   late Future<void> _ready;
   Future<void> get ready => _ready;
 
@@ -25,7 +26,8 @@ class AssetFileSystem extends DappFileSystem {
     for (String path in list) {
       String str = path.replaceFirst(prefix, '');
       if (str[0] != '/') str = '/' + str;
-      map[str] = await rootBundle.load(path);
+      var data = await rootBundle.load(path);
+      map[str] = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     }
   }
 
@@ -38,14 +40,14 @@ class AssetFileSystem extends DappFileSystem {
   String? read(String filename) {
     var data = map[filename];
     if (data != null) {
-      return utf8.decode(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+      return utf8.decode(data);
     } else {
       return null;
     }
   }
 
   @override
-  ByteData? readBytes(String filename) {
+  Uint8List? readBytes(String filename) {
     return map[filename];
   }
 }

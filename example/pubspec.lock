@@ -127,6 +127,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.1"
+  dio:
+    dependency: transitive
+    description:
+      name: dio
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.1"
   fake_async:
     dependency: transitive
     description:
@@ -184,6 +191,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttertoast:
+    dependency: transitive
+    description:
+      name: fluttertoast
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "8.0.8"
   glob:
     dependency: transitive
     description:
@@ -218,7 +232,7 @@ packages:
       name: js_script
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.16"
+    version: "0.0.30"
   logging:
     dependency: transitive
     description:
@@ -468,7 +482,7 @@ packages:
       name: xml_layout
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.4"
+    version: "2.3.7"
   yaml:
     dependency: transitive
     description:
