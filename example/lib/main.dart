@@ -128,10 +128,10 @@ class _MyHomePageState extends State<MyHomePage> {
         if (snapshot.hasData) {
           var data = snapshot.requireData;
           return DApp(
-              entry: '/main',
-              fileSystems: [
-                data.fileSystem,
-              ],
+            entry: '/main',
+            fileSystems: [
+              data.fileSystem,
+            ],
             onInitialize: (script) {
               for (var d in data.extensions) {
                 d.attachTo(script);
