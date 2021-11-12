@@ -78,7 +78,6 @@ class _DRefreshState extends State<DRefresh> with TickerProviderStateMixin {
       duration: Duration(milliseconds: 300),
     );
 
-    print("init ${widget.loading}");
     if (widget.loading) {
       Future.delayed(Duration(milliseconds: 30)).then((value) => refreshController.forward());
     }
@@ -96,7 +95,6 @@ class _DRefreshState extends State<DRefresh> with TickerProviderStateMixin {
         _dismiss = false;
         refreshController.value -= notification.overscroll;
       } else if (notification is ScrollUpdateNotification) {
-        print(notification.dragDetails);
         if (notification.scrollDelta != null && notification.metrics.pixels < 0 && widget.onRefresh != null) {
           if (notification.dragDetails != null) {
             _dismiss = false;
