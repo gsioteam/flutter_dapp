@@ -97,7 +97,14 @@ class DAppState extends State<DApp> {
     script.global["showToast"] = (String msg) {
       Fluttertoast.showToast(msg: msg);
     };
-    
+
+    widget.onInitialize?.call(script);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
     Locale locale = Localizations.localeOf(context);
     JsValue navigator = script.newObject();
     navigator['appCodeName'] = 'dapp';
@@ -106,8 +113,6 @@ class DAppState extends State<DApp> {
     navigator['language'] = locale.toLanguageTag();
     navigator['platform'] = Platform.operatingSystem;
     script.global['navigator'] = navigator;
-
-    widget.onInitialize?.call(script);
   }
 
   @override
