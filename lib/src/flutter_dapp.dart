@@ -1,5 +1,7 @@
 library flutter_dapp;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -95,6 +97,15 @@ class DAppState extends State<DApp> {
     script.global["showToast"] = (String msg) {
       Fluttertoast.showToast(msg: msg);
     };
+    
+    Locale locale = Localizations.localeOf(context);
+    JsValue navigator = script.newObject();
+    navigator['appCodeName'] = 'dapp';
+    navigator['appName'] = 'dapp';
+    navigator['appVersion'] = '0.0.5';
+    navigator['language'] = locale.toLanguageTag();
+    navigator['platform'] = Platform.operatingSystem;
+    script.global['navigator'] = navigator;
 
     widget.onInitialize?.call(script);
   }
