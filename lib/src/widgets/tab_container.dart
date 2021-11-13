@@ -29,7 +29,7 @@ class TabContainer extends StatelessWidget with PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.primary,
+      color: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).appBarTheme.color,
       child: Center(
         child: TabBar(
           tabs: tabs,
