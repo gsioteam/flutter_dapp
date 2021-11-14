@@ -395,7 +395,7 @@ Register register = Register(() {
   XmlLayout.registerInline(BorderRadius, "all", false, (node, method) {
     return BorderRadius.circular((method[0] as num?)?.toDouble()??0);
   });
-  XmlLayout.registerInline(BorderRadius, "list", false, (node, method) {
+  XmlLayout.registerInline(BorderRadius, "sides", false, (node, method) {
     return BorderRadius.only(
       topLeft: Radius.circular((method[0] as num?)?.toDouble() ?? 0),
       topRight: Radius.circular((method[1] as num?)?.toDouble() ?? 0),
