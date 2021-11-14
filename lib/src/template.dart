@@ -1,4 +1,6 @@
 
+import 'dart:ui';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -113,6 +115,7 @@ Register register = Register(() {
       file = path.join(data.file, '..', file);
     }
     return DWidget(
+      key: key,
       script: data.controller.script,
       file: path.normalize(file),
       controllerBuilder: data.controllerBuilder,
@@ -162,11 +165,13 @@ Register register = Register(() {
     var builder = node.s<IndexedWidgetBuilder>('builder');
     if (builder == null) {
       return DListView.children(
+        key: key,
         children: node.children<Widget>(),
         padding: node.s<EdgeInsets>('padding', EdgeInsets.zero)!,
       );
     } else {
       return DListView.builder(
+        key: key,
         builder: builder,
         itemCount: node.s<int>('itemCount', 0)!,
         padding: node.s<EdgeInsets>('padding', EdgeInsets.zero)!,
@@ -175,6 +180,7 @@ Register register = Register(() {
   });
   XmlLayout.register("list-item", (node, key) {
     return ListTile(
+      key: key,
       leading: node.s<Widget>("leading"),
       title: node.s<Widget>("title"),
       subtitle: node.s<Widget>("subtitle"),
@@ -199,6 +205,7 @@ Register register = Register(() {
       });
     }
     return DImage(
+      key: key,
       src: node.s<String>("src")!,
       width: node.s<double>("width"),
       height: node.s<double>("height"),
@@ -232,6 +239,7 @@ Register register = Register(() {
   });
   XmlLayout.register("refresh", (node, key) {
     return DRefresh(
+      key: key,
       child: node.child<Widget>()!,
       loading: node.s<bool>("loading", false)!,
       onRefresh: node.s<VoidCallback>("onRefresh"),
@@ -266,6 +274,7 @@ Register register = Register(() {
     }
 
     return DefaultTabController(
+      key: key,
       length: children.length,
       child: Scaffold(
         appBar: TabContainer(
@@ -346,8 +355,75 @@ Register register = Register(() {
       height: node.s<double>("height"),
       color: node.s<Color>("color"),
       child: node.child<Widget>(),
+      animate: node.s<bool>("animate", false)!,
+      duration: node.s<Duration>("duration", const Duration(milliseconds: 300))!,
+      clip: node.s<Clip>("clip", Clip.none)!,
+      border: node.s<Border>("border"),
+      radius: node.s<BorderRadius>("radius"),
+      gradient: node.s<Gradient>("gradient"),
     );
   });
+  XmlLayout.register("Border", (node, key) {
+    return Border(
+      top: node.s<BorderSide>("top", BorderSide.none)!,
+      right: node.s<BorderSide>("right", BorderSide.none)!,
+      bottom: node.s<BorderSide>("bottom", BorderSide.none)!,
+      left: node.s<BorderSide>("left", BorderSide.none)!,
+    );
+  });
+  XmlLayout.register("Border.all", (node, key) {
+    return Border.all(
+      color: node.s<Color>("color", const Color(0xFF000000))!,
+      width: node.s<double>("width", 1.0)!,
+      style: node.s<BorderStyle>("style", BorderStyle.none)!,
+    );
+  });
+  XmlLayout.register("Border.symmetric", (node, key) {
+    return Border.symmetric(
+      vertical: node.s<BorderSide>("vertical", BorderSide.none)!,
+      horizontal: node.s<BorderSide>("horizontal", BorderSide.none)!,
+    );
+  });
+  XmlLayout.registerInline(BorderSide, "none", true, (node, method) => BorderSide.none);
+  XmlLayout.registerInline(BorderSide, "solid", false, (node, method) {
+    return BorderSide(
+      width: (method[0] as num?)?.toDouble()??1,
+      color: node.v<Color>(method[1]) ?? const Color(0xFF000000),
+      style: BorderStyle.solid,
+    );
+  });
+  XmlLayout.registerInline(BorderRadius, "all", false, (node, method) {
+    return BorderRadius.circular((method[0] as num?)?.toDouble()??0);
+  });
+  XmlLayout.registerInline(BorderRadius, "list", false, (node, method) {
+    return BorderRadius.only(
+      topLeft: Radius.circular((method[0] as num?)?.toDouble() ?? 0),
+      topRight: Radius.circular((method[1] as num?)?.toDouble() ?? 0),
+      bottomRight: Radius.circular((method[2] as num?)?.toDouble() ?? 0),
+      bottomLeft: Radius.circular((method[3] as num?)?.toDouble() ?? 0),
+    );
+  });
+  XmlLayout.register("LinearGradient", (node, key) {
+    return LinearGradient(
+      begin: node.s<Alignment>("begin", Alignment.centerRight)!,
+      end: node.s<Alignment>("end", Alignment.centerRight)!,
+      colors: node.array<Color>("colors")!,
+      stops: node.array<double>("stops"),
+      tileMode: node.s<TileMode>("mode", TileMode.clamp)!,
+    );
+  });
+  XmlLayout.register("RadialGradient", (node, key) {
+    return RadialGradient(
+      center: node.s<Alignment>("center", Alignment.center)!,
+      radius: node.s<double>("radius", 0.5)!,
+      colors: node.array<Color>("colors")!,
+      stops: node.array<double>("stops"),
+      tileMode: node.s<TileMode>("mode", TileMode.clamp)!,
+      focal: node.s<Alignment>("focal"),
+      focalRadius: node.s<double>("focalRadius", 0)!,
+    );
+  });
+  XmlLayout.registerEnum(BorderStyle.values);
   XmlLayout.registerInlineMethod("isNull", (method, status) {
     return method[0] == null;
   });
@@ -364,6 +440,7 @@ Register register = Register(() {
   XmlLayout.registerEnum(Axis.values);
   XmlLayout.register("slivers", (node, key) {
     return CustomScrollView(
+      key: key,
       scrollDirection: node.s<Axis>("direction", Axis.vertical)!,
       reverse: node.s<bool>("reverse", false)!,
       slivers: node.children<Widget>(),
@@ -373,10 +450,12 @@ Register register = Register(() {
     var builder = node.s<IndexedWidgetBuilder>('builder');
     if (builder == null) {
       return DSliverListView.children(
+        key: key,
         children: node.children<Widget>(),
       );
     } else {
       return DSliverListView.builder(
+        key: key,
         builder: builder,
         itemCount: node.s<int>('itemCount', 0)!,
       );
@@ -399,6 +478,7 @@ Register register = Register(() {
   });
   XmlLayout.register("FlexibleSpaceBar", (node, key) {
     return FlexibleSpaceBar(
+      key: key,
       title: node.child<Widget>(),
       titlePadding: node.s<EdgeInsets>("padding"),
       background: node.s<Widget>("background"),
@@ -443,7 +523,25 @@ Register register = Register(() {
     return makeInlineSpan(node);
   });
   XmlLayout.register("text", (node, key) {
-    return Text.rich(makeInlineSpan(node));
+    return Text.rich(
+      makeInlineSpan(node),
+      key: key,
+    );
   });
   XmlLayout.registerInlineMethod("infinity", (method, status) => double.infinity);
+  XmlLayout.register("filter", (node, key) {
+    return BackdropFilter(
+      key: key,
+      filter: node.s<ImageFilter>("filter")!,
+      child: node.child<Widget>(),
+    );
+  });
+  XmlLayout.registerEnum(TileMode.values);
+  XmlLayout.registerInline(ImageFilter, "blur", false, (node, method) {
+    return ImageFilter.blur(
+      sigmaX: (method[0] as num? ?? 0).toDouble(),
+      sigmaY: (method[1] as num? ?? 0).toDouble(),
+      tileMode: method[2] == null ? TileMode.clamp : node.v<TileMode>(method[2], TileMode.clamp)!
+    );
+  });
 });

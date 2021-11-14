@@ -9,6 +9,10 @@ class View extends StatelessWidget {
   final Widget? child;
   final bool animate;
   final Duration duration;
+  final Clip clip;
+  final Border? border;
+  final BorderRadius? radius;
+  final Gradient? gradient;
 
   View({
     Key? key,
@@ -18,16 +22,22 @@ class View extends StatelessWidget {
     this.child,
     this.animate = false,
     this.duration = const Duration(milliseconds: 300),
+    this.clip = Clip.none,
+    this.border,
+    this.radius,
+    this.gradient,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
 
-    Material? mat;
-    if (color != null) {
-      mat = Material(
+    BoxDecoration? _decoration;
+    if (color != null || border != null || radius != null) {
+      _decoration = BoxDecoration(
         color: color,
-        child: child,
+        border: border,
+        borderRadius: radius,
+        gradient: gradient,
       );
     }
 
@@ -36,13 +46,17 @@ class View extends StatelessWidget {
         duration: duration,
         width: width,
         height: height,
-        child: mat == null ? child : mat,
+        clipBehavior: clip,
+        child: child,
+        decoration: _decoration,
       );
     } else {
       return Container(
         width: width,
         height: height,
-        child: mat == null ? child : mat,
+        clipBehavior: clip,
+        child: child,
+        decoration: _decoration,
       );
     }
   }
