@@ -157,6 +157,10 @@ class DWidgetState extends DAppState<DWidget> {
     }));
   }
 
+  navigateBack(result) {
+    Navigator.of(context).pop(result);
+  }
+
   ControllerBuilder get controllerBuilder => widget.controllerBuilder;
 
   State? find(String key) {

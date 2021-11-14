@@ -37,6 +37,12 @@ class Controller {
     }
   }
 
+  navigateBack(dynamic result) {
+    if (state != null) {
+      state!.navigateBack(result);
+    }
+  }
+
   JsValue? find(String key) {
     var res = state?.find(key);
     if (res is State) {
@@ -64,6 +70,7 @@ ClassInfo controllerClass = ClassInfo<Controller>(
   functions: {
     "setState": JsFunction.ins((obj, argv) => obj.setState(argv[0])),
     "navigateTo": JsFunction.ins((obj, argv) => obj.navigateTo(argv[0], argv[1])),
+    "navigateBack": JsFunction.ins((obj, argv) => obj.navigateBack(argv[0])),
     "findElement": JsFunction.ins((obj, argv) => obj.find(argv[0])),
     "loadString": JsFunction.ins((obj, argv) => obj.loadString(argv[0])),
   }

@@ -15,6 +15,7 @@ import 'utils/node_item.dart';
 import 'widgets/dimage.dart';
 import 'widgets/dlistview.dart';
 import 'widgets/drefresh.dart';
+import 'widgets/dsliver_appbar.dart';
 import 'widgets/input.dart';
 import 'widgets/view.dart';
 import 'widgets/dappbar.dart';
@@ -28,7 +29,7 @@ Register register = Register(() {
     return Scaffold(
       key: key,
       appBar: node.s<PreferredSizeWidget>("appBar"),
-      body: node.s<Widget>("body"),
+      body: node.child<Widget>() ?? node.s<Widget>("body"),
       floatingActionButton: node.s<Widget>("floatingActionButton"),
       drawer: node.s<Widget>("drawer"),
       endDrawer: node.s<Widget>("endDrawer"),
@@ -93,14 +94,18 @@ Register register = Register(() {
       type: node.s<DButtonType>("type", DButtonType.elevated)!,
     );
   });
-  XmlLayout.register("text", (node, key) {
-    return Text(
-      node.text,
-      style: TextStyle(
-        color: node.s<Color>("color")
-      ),
-    );
-  });
+  TextStyle? getTextStyle(NodeData node) {
+    TextStyle? style = node.s<TextStyle>("style");
+    Color? color = node.s<Color>("color");
+    if (color != null) {
+      if (style == null) {
+        style = TextStyle(color: color);
+      } else {
+        style = style.copyWith(color: color);
+      }
+    }
+    return style;
+  }
   XmlLayout.register("widget", (node, key) {
     var data = DWidget.of(node.context)!;
     String file = node.s<String>("src")!;
@@ -154,27 +159,15 @@ Register register = Register(() {
   XmlLayout.registerEnum(Brightness.values);
   XmlLayout.registerEnum(DragStartBehavior.values);
   XmlLayout.register("list-view", (node, key) {
-    String? item = node.s<String>('item');
-    if (item != null) {
-      var data = DWidget.of(node.context)!;
-      String file = node.s<String>("src")!;
-      if (file[0] != '/') {
-        file = path.join(data.file, '..', file);
-      }
-      return DListView(
-        builder: (context, index) {
-          return DWidget(
-            script: data.controller.script,
-            file: file,
-            controllerBuilder: data.controllerBuilder,
-          );
-        },
-        itemCount: node.s<int>('itemCount', 0)!,
+    var builder = node.s<IndexedWidgetBuilder>('builder');
+    if (builder == null) {
+      return DListView.children(
+        children: node.children<Widget>(),
         padding: node.s<EdgeInsets>('padding', EdgeInsets.zero)!,
       );
     } else {
-      return DListView(
-        builder: node.s<IndexedWidgetBuilder>('builder')!,
+      return DListView.builder(
+        builder: builder,
         itemCount: node.s<int>('itemCount', 0)!,
         padding: node.s<EdgeInsets>('padding', EdgeInsets.zero)!,
       );
@@ -368,4 +361,89 @@ Register register = Register(() {
       return method[2];
     }
   });
+  XmlLayout.registerEnum(Axis.values);
+  XmlLayout.register("slivers", (node, key) {
+    return CustomScrollView(
+      scrollDirection: node.s<Axis>("direction", Axis.vertical)!,
+      reverse: node.s<bool>("reverse", false)!,
+      slivers: node.children<Widget>(),
+    );
+  });
+  XmlLayout.register("sliver-list-view", (node, key) {
+    var builder = node.s<IndexedWidgetBuilder>('builder');
+    if (builder == null) {
+      return DSliverListView.children(
+        children: node.children<Widget>(),
+      );
+    } else {
+      return DSliverListView.builder(
+        builder: builder,
+        itemCount: node.s<int>('itemCount', 0)!,
+      );
+    }
+  });
+  XmlLayout.register("sliver-appbar", (node, key) {
+    return DSliverAppBar(
+      key: key,
+      child: node.child<Widget>(),
+      leading: node.s<Widget>("leading"),
+      actions: node.array<Widget>("actions"),
+      bottom: node.s<PreferredSizeWidget>("bottom"),
+      brightness: node.s<Brightness>("brightness"),
+      background: node.s<Color>("background"),
+      color: node.s<Color>("color"),
+      floating: node.s<bool>("floating", false)!,
+      pinned: node.s<bool>("pinned", false)!,
+      expandedHeight: node.s<double>("expandedHeight"),
+    );
+  });
+  XmlLayout.register("FlexibleSpaceBar", (node, key) {
+    return FlexibleSpaceBar(
+      title: node.child<Widget>(),
+      titlePadding: node.s<EdgeInsets>("padding"),
+      background: node.s<Widget>("background"),
+      centerTitle: node.s<bool>("center"),
+      collapseMode: node.s<CollapseMode>("mode", CollapseMode.parallax)!,
+    );
+  });
+  XmlLayout.registerEnum(CollapseMode.values);
+
+  InlineSpan makeInlineSpan(NodeData node) {
+    var children = node.children();
+
+    InlineSpan convertSpan(dynamic element) {
+      if (element is Widget) {
+        return WidgetSpan(
+          child: element,
+        );
+      } else if (element is InlineSpan) {
+        return element;
+      } else {
+        return TextSpan(
+            text: ""
+        );
+      }
+    }
+    if (children.isEmpty) {
+      return TextSpan(
+        text: node.text,
+        style: getTextStyle(node),
+      );
+    } else if (children.length == 1) {
+      return convertSpan(children[0]);
+    } else {
+      return TextSpan(
+        children: children.map((e) => convertSpan(e)).toList(),
+        style: getTextStyle(node),
+      );
+    }
+  }
+
+  XmlLayout.register("span", (node, key) {
+    return makeInlineSpan(node);
+  });
+  XmlLayout.register("text", (node, key) {
+    return Text.rich(makeInlineSpan(node));
+  });
+  XmlLayout.registerInlineMethod("infinity", (method, status) => double.infinity);
 });

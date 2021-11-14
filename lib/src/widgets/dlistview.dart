@@ -2,44 +2,57 @@
 
 import 'package:flutter/material.dart';
 
-enum DListViewType {
-  none,
-  separated,
+abstract class DListView {
+
+  static Widget builder({
+    Key? key,
+    required IndexedWidgetBuilder builder,
+    required int itemCount,
+    EdgeInsets padding = EdgeInsets.zero,
+  }) {
+    return ListView.builder(
+      key: key,
+      itemBuilder: builder,
+      itemCount: itemCount,
+      padding: padding,
+    );
+  }
+
+  static Widget children({
+    Key? key,
+    required List<Widget> children,
+    EdgeInsets padding = EdgeInsets.zero,
+  }) {
+    return ListView(
+      key: key,
+      children: children,
+      padding: padding,
+    );
+  }
 }
 
-class DListView extends StatelessWidget {
-
-  final DListViewType type;
-  final IndexedWidgetBuilder builder;
-  final int itemCount;
-  final EdgeInsets padding;
-
-  DListView({
+abstract class DSliverListView {
+  static Widget builder({
     Key? key,
-    this.type = DListViewType.none,
-    required this.builder,
-    required this.itemCount,
-    this.padding = EdgeInsets.zero,
-  }) : super(key: key);
+    required IndexedWidgetBuilder builder,
+    required int itemCount,
+  }) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        builder,
+        childCount: itemCount,
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    switch (type) {
-      case DListViewType.none: {
-        return ListView.builder(
-          itemBuilder: builder,
-          itemCount: itemCount,
-          padding: padding,
-        );
-      }
-      case DListViewType.separated: {
-        return ListView.separated(
-          itemBuilder: builder,
-          separatorBuilder: (context, index) => const Divider(height: 2,),
-          itemCount: itemCount,
-          padding: padding,
-        );
-      }
-    }
+  static Widget children({
+    Key? key,
+    required List<Widget> children,
+  }) {
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        children
+      ),
+    );
   }
 }
