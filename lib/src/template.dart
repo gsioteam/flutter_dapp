@@ -23,6 +23,24 @@ import 'widgets/view.dart';
 import 'widgets/dappbar.dart';
 import 'widgets/dbutton.dart';
 import 'widgets/tab_container.dart';
+import 'widgets/dgridview.dart';
+
+typedef TestCallback = int Function();
+extension DAppNodeData on NodeData {
+  T? function<T extends Function>(String name) {
+    var func = s(name);
+    if (func is T) {
+      return func;
+    } else if (func is String) {
+      // Only works when return type is void or dynamic.
+      var fn = ([a1, a2, a3, a4, a5]) {
+        return DWidget.of(context)?.controller.invoke(func, [a1,a2,a3,a4,a5]);
+      };
+      if (fn is T)
+        return fn as T;
+    }
+  }
+}
 
 Register register = Register(() {
   colors.register();
@@ -91,19 +109,30 @@ Register register = Register(() {
     return DButton(
       key: key,
       child: node.child<Widget>()!,
-      onPressed: node.s<VoidCallback>("onPressed"),
-      onLongPress: node.s<VoidCallback>("onLongPress"),
+      onPressed: node.function<VoidCallback>("onPressed"),
+      onLongPress: node.function<VoidCallback>("onLongPress"),
       type: node.s<DButtonType>("type", DButtonType.elevated)!,
+      minimumSize: node.s<Size>("minimumSize"),
+      tapTargetSize: node.s<MaterialTapTargetSize>("tapTargetSize"),
+      padding: node.s<EdgeInsets>("padding"),
+      color: node.s<Color>("color"),
     );
   });
   TextStyle? getTextStyle(NodeData node) {
     TextStyle? style = node.s<TextStyle>("style");
     Color? color = node.s<Color>("color");
-    if (color != null) {
+    double? size = node.s<double>("size");
+    if (color != null || size != null) {
       if (style == null) {
-        style = TextStyle(color: color);
+        style = TextStyle(
+          color: color,
+          fontSize: size,
+        );
       } else {
-        style = style.copyWith(color: color);
+        style = style.copyWith(
+          color: color,
+          fontSize: size,
+        );
       }
     }
     return style;
@@ -185,7 +214,7 @@ Register register = Register(() {
       title: node.s<Widget>("title"),
       subtitle: node.s<Widget>("subtitle"),
       trailing: node.s<Widget>("trailing"),
-      onTap: node.s<VoidCallback>("onTap"),
+      onTap: node.function<VoidCallback>("onTap"),
       dense: node.s<bool>("dense",),
       contentPadding: node.s<EdgeInsets>("padding"),
       tileColor: node.s<Color>("color"),
@@ -211,6 +240,7 @@ Register register = Register(() {
       height: node.s<double>("height"),
       fit: node.s<BoxFit>("fit", BoxFit.contain)!,
       headers: headers,
+      gaplessPlayback: node.s<bool>("gaplessPlayback", false)!,
     );
   };
   XmlLayout.register("img", imgBuilder);
@@ -242,24 +272,27 @@ Register register = Register(() {
       key: key,
       child: node.child<Widget>()!,
       loading: node.s<bool>("loading", false)!,
-      onRefresh: node.s<VoidCallback>("onRefresh"),
-      onLoadMore: node.s<VoidCallback>("onLoadMore"),
+      onRefresh: node.function<VoidCallback>("onRefresh"),
+      onLoadMore: node.function<VoidCallback>("onLoadMore"),
       refreshInset: node.s<double>("refreshInset", 36)!,
     );
   });
   XmlLayout.registerInline(EdgeInsets, "zero", true, (node, method) => EdgeInsets.zero);
   XmlLayout.registerInline(EdgeInsets, "ltrb", false, (node, method) =>
       EdgeInsets.fromLTRB(
-          (method[0] as num).toDouble(),
-          (method[1] as num).toDouble(),
-          (method[2] as num).toDouble(),
-          (method[3] as num).toDouble())
+          (method[0] as num?)?.toDouble()??0,
+          (method[1] as num?)?.toDouble()??0,
+          (method[2] as num?)?.toDouble()??0,
+          (method[3] as num?)?.toDouble()??0)
   );
   XmlLayout.registerInline(EdgeInsets, "symmetric", false, (node, method) =>
       EdgeInsets.symmetric(
         horizontal: (method[0] as num).toDouble(),
         vertical: (method[1] as num).toDouble(),
       )
+  );
+  XmlLayout.registerInline(EdgeInsets, "all", false, (node, method) =>
+      EdgeInsets.all((method[0] as num).toDouble())
   );
   XmlLayout.register('tabs', (node, key) {
     var items = node.children<TabItem>();
@@ -307,8 +340,8 @@ Register register = Register(() {
       autofocus: node.s<bool>("autofocus", false)!,
       onChange: node.s<InputChangedCallback>("onChange"),
       onSubmit: node.s<InputSubmitCallback>("onSubmit"),
-      onFocus: node.s<VoidCallback>("onFocus"),
-      onBlur: node.s<VoidCallback>("onBlur"),
+      onFocus: node.function<VoidCallback>("onFocus"),
+      onBlur: node.function<VoidCallback>("onBlur"),
       style: node.s<TextStyle>("style"),
     );
   });
@@ -361,6 +394,9 @@ Register register = Register(() {
       border: node.s<Border>("border"),
       radius: node.s<BorderRadius>("radius"),
       gradient: node.s<Gradient>("gradient"),
+      padding: node.s<EdgeInsets>("padding"),
+      alignment: node.s<Alignment>("alignment"),
+      margin: node.s<EdgeInsets>("margin"),
     );
   });
   XmlLayout.register("Border", (node, key) {
@@ -485,6 +521,11 @@ Register register = Register(() {
       centerTitle: node.s<bool>("center"),
       collapseMode: node.s<CollapseMode>("mode", CollapseMode.parallax)!,
     );
+  });XmlLayout.register("sliver-container", (node, key) {
+    return SliverToBoxAdapter(
+      key: key,
+      child: node.child<Widget>(),
+    );
   });
   XmlLayout.registerEnum(CollapseMode.values);
 
@@ -494,19 +535,20 @@ Register register = Register(() {
     InlineSpan convertSpan(dynamic element) {
       if (element is Widget) {
         return WidgetSpan(
+          alignment: node.s<PlaceholderAlignment>("alignment", PlaceholderAlignment.bottom)!,
           child: element,
         );
       } else if (element is InlineSpan) {
         return element;
       } else {
         return TextSpan(
-            text: ""
+          text: ""
         );
       }
     }
     if (children.isEmpty) {
       return TextSpan(
-        text: node.text,
+        text: node.s<String>("text") ?? node.text,
         style: getTextStyle(node),
       );
     } else if (children.length == 1) {
@@ -526,8 +568,11 @@ Register register = Register(() {
     return Text.rich(
       makeInlineSpan(node),
       key: key,
+      maxLines: node.s<int>("lines"),
+      overflow: node.s<TextOverflow>("overflow"),
     );
   });
+  XmlLayout.registerEnum(TextOverflow.values);
   XmlLayout.registerInlineMethod("infinity", (method, status) => double.infinity);
   XmlLayout.register("filter", (node, key) {
     return BackdropFilter(
@@ -543,5 +588,156 @@ Register register = Register(() {
       sigmaY: (method[1] as num? ?? 0).toDouble(),
       tileMode: method[2] == null ? TileMode.clamp : node.v<TileMode>(method[2], TileMode.clamp)!
     );
+  });
+  XmlLayout.register("color", (node, key) {
+    Color? color = node.s<Color>("color");
+    if (color != null) return color;
+    return node.v<Color>(node.text);
+  });
+  XmlLayout.registerInline(Size, "", false, (node, method) {
+    return Size((method[0] as num?)?.toDouble()??0, (method[1] as num?)?.toDouble()??0);
+  });
+  XmlLayout.registerInline(Size, "zero", true, (node, method) {
+    return Size.zero;
+  });
+  XmlLayout.registerEnum(MaterialTapTargetSize.values);
+  XmlLayout.register("PreferredSize", (node, key) {
+    return PreferredSize(
+      key: key,
+      child: node.child<Widget>()!,
+      preferredSize: node.s<Size>("size", Size.fromHeight(32))!,
+    );
+  });
+  XmlLayout.register("Expanded", (node, key) {
+    return Expanded(
+      key: key,
+      child: node.child<Widget>() ?? Container(),
+      flex: node.s<int>("flex", 1)!,
+    );
+  });
+  XmlLayout.register("Divider", (node, key) {
+    String? type = node.s<String>("type");
+    if (type == "vertical") {
+      return VerticalDivider(
+        key: key,
+        width: node.s<double>("width"),
+        thickness: node.s<double>("thickness"),
+        indent: node.s<double>("indent"),
+        endIndent: node.s<double>("endIndent"),
+      );
+    } else {
+      return Divider(
+        key: key,
+        height: node.s<double>("height"),
+        thickness: node.s<double>("thickness"),
+        indent: node.s<double>("indent"),
+        endIndent: node.s<double>("endIndent"),
+      );
+    }
+  });
+  XmlLayout.register("menu-button", (node, key) {
+    return PopupMenuButton(
+      key: key,
+      child: node.child<Widget>(),
+      onSelected: node.function<PopupMenuItemSelected>("onSelected"),
+      onCanceled: node.function<PopupMenuCanceled>("onCanceled"),
+      itemBuilder: (context) {
+        return node.array<PopupMenuEntry>("items") ?? [];
+      },
+      padding: node.s<EdgeInsets>("padding", const EdgeInsets.all(8.0))!,
+      tooltip: node.s<String>("tooltip"),
+      elevation: node.s<double>("elevation"),
+      icon: node.s<Widget>("icon"),
+      iconSize: node.s<double>("iconSize"),
+      offset: node.s<Offset>("offset", Offset.zero)!,
+      enabled: node.s<bool>("enabled", true)!,
+      color: node.s<Color>("color"),
+    );
+  });
+  XmlLayout.register("menu-item", (node, key) {
+    return PopupMenuItem(
+      key: key,
+      child: node.child<Widget>()!,
+      value: node.s("value"),
+      enabled: node.s<bool>("enabled", true)!,
+      height: node.s<double>("height", kMinInteractiveDimension)!,
+      padding: node.s<EdgeInsets>("padding"),
+      textStyle: getTextStyle(node),
+    );
+  });
+  XmlLayout.register("menu-divider", (node, key) {
+    return PopupMenuDivider(
+      key: key,
+      height: node.s<double>("height", 16)!,
+    );
+  });
+  XmlLayout.registerInlineMethod("js", (method, status) {
+    var widget = DWidget.of(status.context);
+    if (widget != null) {
+      String func = method[0];
+      List argv = [];
+      for (var i = 1, t = method.length; i < t; ++i) {
+        argv.add(method[i]);
+      }
+      return widget.controller.invoke(func, argv);
+    }
+  });
+  XmlLayout.register("switch", (node, key) {
+    return AnimatedSwitcher(
+      duration: node.s<Duration>("duration", const Duration(milliseconds: 300))!,
+      child: node.child<Widget>(),
+      transitionBuilder: (child, animation) {
+        return SizeTransition(
+          axis: node.s<Axis>("axis", Axis.vertical)!,
+          sizeFactor: animation,
+          child: child,
+        );
+      },
+    );
+  });
+  XmlLayout.registerEnum(Axis.values);
+  XmlLayout.registerInline(Duration, "zero", true, (node, method) => Duration.zero);
+  XmlLayout.registerInline(Duration, "", false, (node, method) {
+    return Duration(milliseconds: (method[0] as num?)?.toInt()??0);
+  });
+  XmlLayout.register("grid-view", (node, key) {
+    var builder = node.s<IndexedWidgetBuilder>('builder');
+    if (builder == null) {
+      return DGridView.children(
+        key: key,
+        children: node.children<Widget>(),
+        padding: node.s<EdgeInsets>('padding', EdgeInsets.zero)!,
+        crossAxisCount: node.s<int>("crossAxisCount", 4)!,
+        childAspectRatio: node.s<double>("childAspectRatio", 1)!,
+      );
+    } else {
+      return DGridView.builder(
+        key: key,
+        builder: builder,
+        itemCount: node.s<int>('itemCount', 0)!,
+        padding: node.s<EdgeInsets>('padding', EdgeInsets.zero)!,
+        crossAxisCount: node.s<int>("crossAxisCount", 4)!,
+        childAspectRatio: node.s<double>("childAspectRatio", 1)!,
+      );
+    }
+  });
+  XmlLayout.register("sliver-grid-view", (node, key) {
+    var builder = node.s<IndexedWidgetBuilder>('builder');
+    if (builder == null) {
+      return DSliverGridView.children(
+        key: key,
+        children: node.children<Widget>(),
+        crossAxisCount: node.s<int>("crossAxisCount", 4)!,
+        childAspectRatio: node.s<double>("childAspectRatio", 1)!,
+      );
+    } else {
+      return DSliverGridView.builder(
+        key: key,
+        builder: builder,
+        itemCount: node.s<int>('itemCount', 0)!,
+        crossAxisCount: node.s<int>("crossAxisCount", 4)!,
+        childAspectRatio: node.s<double>("childAspectRatio", 1)!,
+      );
+    }
   });
 });

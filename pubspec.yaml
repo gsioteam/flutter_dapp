@@ -1,6 +1,6 @@
 name: flutter_dapp
 description: A runtime application plugin for flutter.
-version: 0.0.13
+version: 0.0.17
 homepage: https://github.com/gsioteam/flutter_dapp
 
 environment:
@@ -10,8 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  js_script: ^0.0.32
-  xml_layout: ^2.3.7
+  js_script: ^0.0.38
+  xml_layout: ^2.3.9
   cached_network_image: ^3.1.0
   fluttertoast: ^8.0.8
   dio: ^4.0.0

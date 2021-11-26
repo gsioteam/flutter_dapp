@@ -92,8 +92,7 @@ class DWidgetState extends DAppState<DWidget> {
       throw Exception("Script result must be a constructor.");
     }
     controller = widget.script.bind(
-        Controller(widget.script)
-          ..state = this,
+        widget.controllerBuilder(script, this),
         classFunc: jsClass)..retain();
     try {
       controller.invoke("load", [widget.initializeData ?? {}]);

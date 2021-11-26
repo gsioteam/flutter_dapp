@@ -45,6 +45,7 @@ class DApp extends StatefulWidget {
   final ControllerBuilder controllerBuilder;
   final ClassInfo? classInfo;
   final DAppInitializeCallback? onInitialize;
+  final dynamic initializeData;
 
   DApp({
     Key? key,
@@ -53,6 +54,7 @@ class DApp extends StatefulWidget {
     this.controllerBuilder = _defaultControllerBuilder,
     this.classInfo,
     this.onInitialize,
+    this.initializeData,
   }) : super(key: key);
 
   @override
@@ -102,20 +104,6 @@ class DAppState extends State<DApp> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    Locale locale = Localizations.localeOf(context);
-    JsValue navigator = script.newObject();
-    navigator['appCodeName'] = 'dapp';
-    navigator['appName'] = 'dapp';
-    navigator['appVersion'] = '0.0.5';
-    navigator['language'] = locale.toLanguageTag();
-    navigator['platform'] = Platform.operatingSystem;
-    script.global['navigator'] = navigator;
-  }
-
-  @override
   void didUpdateWidget(covariant DApp oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!(testSame(oldWidget))) {
@@ -130,6 +118,7 @@ class DAppState extends State<DApp> {
       key: ValueKey(script),
       script: script,
       file: widget.entry,
+      initializeData: widget.initializeData,
       controllerBuilder: widget.controllerBuilder,
     );
   }

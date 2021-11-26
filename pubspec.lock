@@ -218,7 +218,7 @@ packages:
       name: js_script
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.32"
+    version: "0.0.38"
   logging:
     dependency: transitive
     description:
@@ -468,7 +468,7 @@ packages:
       name: xml_layout
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.7"
+    version: "2.3.9"
   yaml:
     dependency: transitive
     description:
