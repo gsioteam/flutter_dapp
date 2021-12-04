@@ -90,6 +90,7 @@ class _DRefreshState extends State<DRefresh> with TickerProviderStateMixin {
   }
 
   bool _onNotification(ScrollNotification notification) {
+    if (refreshController.isAnimating) return false;
     if (!_isRefresh()) {
       if (notification is OverscrollNotification && widget.onRefresh != null) {
         _dismiss = false;
