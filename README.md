@@ -328,3 +328,108 @@ DApp(
     - thickness `double`
     - indent `double`
     - endIndent `double`
+
+### menu-button
+
+- Description:
+    - A wrap of `PopupMenuButton` in flutter
+- Attributes:
+    - onSelected `PopupMenuItemSelected`
+    - onCanceled `PopupMenuCanceled`
+    - items `List<PopupMenuEntry>`
+    - padding `EdgeInsets` default: *EdgeInsets.all(8.0)*
+    - tooltip `String`
+    - elevation `double`
+    - icon `Widget`
+    - iconSize`double`
+    - offset `Offset` default: *Offset.zero*
+    - enabled `bool` default: *true*
+    - color `Color`
+- Child `Widget`
+
+### menu-item
+
+- Description:
+    - A wrap of `PopupMenuItem` in flutter
+- Attributes:
+    - value `any`
+    - enabled `bool` default: *true*
+    - height `double` default: *kMinInteractiveDimension*
+    - padding `EdgeInsets` 
+    - style `TextStyle`
+    - color `Color`
+    - size `double`
+- Child `Widget`
+
+### menu-divider
+
+- Description:
+    - A wrap of `PopupMenuDivider` in flutter
+- Attributes:
+    - height `double` default: *16*
+
+### switch
+
+- Description:
+    - A wrap of `AnimatedSwitcher` in flutter
+- Attributes:
+    - duration `Duration` default: *Duration(milliseconds: 300)*
+    - axis `Axis` default: *Axis.vertical*
+- Child `Widget`
+
+### grid-view
+
+- Description:
+    - A wrap of `GridView` in flutter
+- Attributes:
+    - builder `IndexedWidgetBuilder`
+    - itemCount `int` default: *0*  Available when `builder` is not null
+    - padding `EdgeInsets` default: *EdgeInsets.zero*
+    - crossAxisCount `int` default: *4*
+    - childAspectRatio `double` default: *1*
+- Children `Widget` Available when `builder` is null
+
+### sliver-grid-view
+
+- Description:
+    - A wrap of `SliverGridView` in flutter
+- Attributes:
+    - builder `IndexedWidgetBuilder`
+    - itemCount `int` default: *0*  Available when `builder` is not null
+    - crossAxisCount `int` default: *4*
+    - childAspectRatio `double` default: *1*
+- Children `Widget` Available when `builder` is null
+
+## Extended inline method
+
+### js(method, arguments...)
+
+```xml
+<if candidate="js(isFavorate)">
+    <view color="red"/>
+</if>
+```
+
+- Description:
+    - Call method define in the js script.
+
+### array(arguments...)
+
+```xml
+<callback function="getItem" array="array(arg1, arg2)"/>
+```
+
+- Description:
+    - Convert arguments to a `List`.
+
+### length(list)
+
+- Description:
+    - Get length of list.
+
+### isNull(obj)
+### isNotNull(obj)
+### switch(test, a, b)
+
+- Description:
+    - return `a` if `test` equal true, otherwise return `b`.
