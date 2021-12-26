@@ -1,6 +1,6 @@
 name: flutter_dapp
 description: A runtime application plugin for flutter.
-version: 0.0.19
+version: 0.0.21
 homepage: https://github.com/gsioteam/flutter_dapp
 
 environment:
