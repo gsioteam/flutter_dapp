@@ -46,6 +46,7 @@ class DApp extends StatefulWidget {
   final ClassInfo? classInfo;
   final DAppInitializeCallback? onInitialize;
   final dynamic initializeData;
+  final DWidgetOnNavigateTo? onNavigateTo;
 
   DApp({
     Key? key,
@@ -55,6 +56,7 @@ class DApp extends StatefulWidget {
     this.classInfo,
     this.onInitialize,
     this.initializeData,
+    this.onNavigateTo,
   }) : super(key: key);
 
   @override
@@ -119,7 +121,10 @@ class DAppState extends State<DApp> {
       script: script,
       file: widget.entry,
       initializeData: widget.initializeData,
-      controllerBuilder: widget.controllerBuilder,
+      customerMethods: DAppCustomer(
+        controllerBuilder: widget.controllerBuilder,
+        onNavigateTo: widget.onNavigateTo,
+      ),
     );
   }
 }

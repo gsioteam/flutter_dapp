@@ -147,7 +147,7 @@ Register register = Register(() {
       key: key,
       script: data.controller.script,
       file: path.normalize(file),
-      controllerBuilder: data.controllerBuilder,
+      customerMethods: data.customerMethods,
       initializeData: node.s("data"),
     );
   });

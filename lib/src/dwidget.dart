@@ -10,6 +10,12 @@ import 'dapp_state.dart';
 import 'controller.dart';
 
 typedef ControllerBuilder = dynamic Function(JsScript script, DWidgetState state);
+typedef DWidgetOnNavigateTo = Widget Function({
+  JsScript script,
+  String file,
+  dynamic initializeData,
+  DAppCustomer customerMethods,
+});
 
 class _InheritedContext extends InheritedWidget {
   final DWidgetState data;
@@ -30,21 +36,30 @@ class _InheritedContext extends InheritedWidget {
     }
     return true;
   }
+}
 
+class DAppCustomer {
+  final ControllerBuilder controllerBuilder;
+  final DWidgetOnNavigateTo? onNavigateTo;
+
+  DAppCustomer({
+    required this.controllerBuilder,
+    this.onNavigateTo,
+  });
 }
 
 class DWidget extends StatefulWidget {
   final String file;
   final JsScript script;
   final dynamic initializeData;
-  final ControllerBuilder controllerBuilder;
+  final DAppCustomer customerMethods;
 
   DWidget({
     Key? key,
     required this.script,
     required this.file,
     this.initializeData,
-    required this.controllerBuilder,
+    required this.customerMethods,
   }) : super(key: key);
 
   @override
@@ -92,7 +107,7 @@ class DWidgetState extends DAppState<DWidget> {
       throw Exception("Script result must be a constructor.");
     }
     controller = widget.script.bind(
-        widget.controllerBuilder(script, this),
+        widget.customerMethods.controllerBuilder(script, this),
         classFunc: jsClass)..retain();
     try {
       controller.invoke("load", [widget.initializeData ?? {}]);
@@ -147,12 +162,21 @@ class DWidgetState extends DAppState<DWidget> {
     JsValue? data,
   }) {
     return Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return DWidget(
-        file: relativePath(src),
-        script: widget.script,
-        initializeData: data,
-        controllerBuilder: widget.controllerBuilder,
-      );
+      if (widget.customerMethods.onNavigateTo != null) {
+        return widget.customerMethods.onNavigateTo!(
+          file: relativePath(src),
+          script: widget.script,
+          initializeData: data,
+          customerMethods: widget.customerMethods,
+        );
+      } else {
+        return DWidget(
+          file: relativePath(src),
+          script: widget.script,
+          initializeData: data,
+          customerMethods: widget.customerMethods,
+        );
+      }
     }));
   }
 
@@ -160,7 +184,7 @@ class DWidgetState extends DAppState<DWidget> {
     Navigator.of(context).pop(result);
   }
 
-  ControllerBuilder get controllerBuilder => widget.controllerBuilder;
+  DAppCustomer get customerMethods => widget.customerMethods;
 
   State? find(String key) {
     return _layoutKey.currentState?.find(key)?.currentState;
