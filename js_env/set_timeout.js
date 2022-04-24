@@ -6,8 +6,10 @@ globalThis.setTimeout = function (func, time) {
     let timer = new Timer(time, false);
     _timers[id] = timer;
     timer.onTimeout = function() {
+        let timer = _timers[id];
         delete _timers[id];
         func();
+        console.log(timer);
     };
     timer.start();
     return id;
@@ -18,7 +20,6 @@ globalThis.setInterval = function (func, time) {
     let timer = new Timer(time, true);
     _timers[id] = timer;
     timer.onTimeout = function() {
-        delete _timers[id];
         func();
     };
     timer.start();

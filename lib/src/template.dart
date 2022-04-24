@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/foundation/diagnostics.dart';
+import 'package:flutter_dapp/src/widgets/scrollview.dart';
 import 'package:js_script/js_script.dart';
 import 'package:xml_layout/register.dart';
 import 'package:xml_layout/xml_layout.dart';
@@ -739,5 +739,16 @@ Register register = Register(() {
         childAspectRatio: node.s<double>("childAspectRatio", 1)!,
       );
     }
+  });
+
+  XmlLayout.registerEnum(ScrollViewType.values);
+  XmlLayout.register("scrollview", (node, key) {
+    return DScrollView(
+      key: key,
+      direction: node.s<Axis>("direction", Axis.vertical)!,
+      reverse: node.s<bool>("reverse", false)!,
+      children: node.children<Widget>(),
+      type: node.s<ScrollViewType>("type", ScrollViewType.normal)!,
+    );
   });
 });

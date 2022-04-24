@@ -60,6 +60,16 @@ class Controller {
       return state.script.fileSystems.loadCode(path);
     }
   }
+
+  double getWidth() {
+    var renderObject = state?.context.findRenderObject();
+    return renderObject?.semanticBounds.width ?? 0;
+  }
+
+  double getHeight() {
+    var renderObject = state?.context.findRenderObject();
+    return renderObject?.semanticBounds.height ?? 0;
+  }
 }
 
 ClassInfo controllerClass = ClassInfo<Controller>(
@@ -73,5 +83,7 @@ ClassInfo controllerClass = ClassInfo<Controller>(
     "navigateBack": JsFunction.ins((obj, argv) => obj.navigateBack(argv[0])),
     "findElement": JsFunction.ins((obj, argv) => obj.find(argv[0])),
     "loadString": JsFunction.ins((obj, argv) => obj.loadString(argv[0])),
+    "getWidth": JsFunction.ins((obj, argv) => obj.getWidth()),
+    "getHeight": JsFunction.ins((obj, argv) => obj.getHeight()),
   }
 );
