@@ -8,6 +8,7 @@ enum DButtonType {
   text,
   icon,
   material,
+  styleless
 }
 
 class DButton extends StatelessWidget {
@@ -85,6 +86,13 @@ class DButton extends StatelessWidget {
             padding: padding,
             primary: color,
           ),
+        );
+      }
+      case DButtonType.styleless: {
+        return InkWell(
+          onTap: onPressed,
+          onLongPress: onLongPress,
+          child: child,
         );
       }
     }
