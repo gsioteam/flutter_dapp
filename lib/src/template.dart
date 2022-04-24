@@ -370,6 +370,17 @@ Register register = Register(() {
       clipBehavior: node.s<Clip>("clip", Clip.hardEdge)!,
     );
   });
+  XmlLayout.register("Positioned", (node, key) {
+    return Positioned(
+      child: node.child<Widget>()!,
+      left: node.s<double>("left"),
+      right: node.s<double>("right"),
+      top: node.s<double>("top"),
+      bottom: node.s<double>("bottom"),
+      width: node.s<double>("width"),
+      height: node.s<double>("height"),
+    );
+  });
   XmlLayout.registerInline(Alignment, "topLeft", true, (node, method) => Alignment.topLeft);
   XmlLayout.registerInline(Alignment, "topCenter", true, (node, method) => Alignment.topCenter);
   XmlLayout.registerInline(Alignment, "topRight", true, (node, method) => Alignment.topRight);
