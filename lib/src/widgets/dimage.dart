@@ -56,16 +56,20 @@ class DImage extends StatelessWidget {
       );
     } else {
       var data = DWidget.of(context)!;
-      var buf = data.script.fileSystems.cast<DappFileSystem>().loadFile(data.relativePath(src));
-      if (buf != null) {
-        return Image.memory(buf,
-          width: width,
-          height: height,
-          fit: fit,
-          errorBuilder: errorBuilder,
-          gaplessPlayback: gaplessPlayback,
-        );
-      } else {
+      try {
+        var buf = data.script.fileSystems.cast<DappFileSystem>().loadFile(data.relativePath(src));
+        if (buf != null) {
+          return Image.memory(buf,
+            width: width,
+            height: height,
+            fit: fit,
+            errorBuilder: errorBuilder,
+            gaplessPlayback: gaplessPlayback,
+          );
+        } else {
+          return errorBuilder(context, data, null);
+        }
+      } catch (e) {
         return errorBuilder(context, data, null);
       }
     }
