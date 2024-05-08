@@ -13,7 +13,7 @@ class TabItem {
   });
 }
 
-class TabContainer extends StatelessWidget with PreferredSizeWidget {
+class TabContainer extends StatelessWidget implements PreferredSizeWidget {
 
   final List<Widget> tabs;
   final bool isScrollable;
@@ -29,7 +29,7 @@ class TabContainer extends StatelessWidget with PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).appBarTheme.color,
+      color: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).appBarTheme.backgroundColor,
       child: Center(
         child: TabBar(
           tabs: tabs,

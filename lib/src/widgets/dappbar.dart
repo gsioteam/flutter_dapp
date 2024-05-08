@@ -1,8 +1,9 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class DAppBar extends StatelessWidget with PreferredSizeWidget {
+class DAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final Widget? leading;
   final Widget? child;
@@ -41,7 +42,7 @@ class DAppBar extends StatelessWidget with PreferredSizeWidget {
       actionsIconTheme: color == null ? null : IconThemeData(
         color: color
       ),
-      brightness: brightness,
+      systemOverlayStyle: brightness == null ? null : (brightness == Brightness.light ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark),
     );
   }
 

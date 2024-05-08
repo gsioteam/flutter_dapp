@@ -19,7 +19,7 @@ import 'widgets/dlistview.dart';
 import 'widgets/drefresh.dart';
 import 'widgets/dsliver_appbar.dart';
 import 'widgets/input.dart';
-import 'widgets/view.dart';
+import 'widgets/view.dart' as v;
 import 'widgets/dappbar.dart';
 import 'widgets/dbutton.dart';
 import 'widgets/tab_container.dart';
@@ -393,7 +393,7 @@ Register register = Register(() {
   XmlLayout.registerEnum(StackFit.values);
   XmlLayout.registerEnum(Clip.values);
   XmlLayout.register("view", (node, key) {
-    return View(
+    return v.View(
       key: key,
       width: node.s<double>("width"),
       height: node.s<double>("height"),

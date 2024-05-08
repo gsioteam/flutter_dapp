@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class DSliverAppBar extends StatelessWidget {
 
@@ -36,7 +37,11 @@ class DSliverAppBar extends StatelessWidget {
       pinned: pinned,
       backgroundColor: background,
       expandedHeight: expandedHeight,
-      brightness: brightness,
+      systemOverlayStyle: switch (brightness) {
+        null => null,
+        Brightness.light => SystemUiOverlayStyle.light,
+        Brightness.dark => SystemUiOverlayStyle.dark,
+      },
       iconTheme: color == null ? null : IconThemeData(
           color: color
       ),

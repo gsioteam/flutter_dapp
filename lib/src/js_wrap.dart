@@ -25,7 +25,7 @@ unwrap(object) {
   }
 }
 
-class DataList with List, ListMixin, JsProxy {
+class DataList with ListMixin, JsProxy implements List {
   JsValue value;
   DataList(this.value);
 
@@ -45,7 +45,7 @@ class DataList with List, ListMixin, JsProxy {
 
 }
 
-class DataMap with Map, MapMixin, JsProxy {
+class DataMap with MapMixin, JsProxy implements Map {
   JsValue value;
 
   DataMap(this.value);
