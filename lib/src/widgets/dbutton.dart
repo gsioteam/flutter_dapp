@@ -48,7 +48,7 @@ class DButton extends StatelessWidget {
             tapTargetSize: tapTargetSize,
             minimumSize: minimumSize,
             padding: padding,
-            primary: color,
+            foregroundColor: color,
           ),
         );
       }
@@ -84,7 +84,7 @@ class DButton extends StatelessWidget {
             tapTargetSize: tapTargetSize,
             minimumSize: minimumSize,
             padding: padding,
-            primary: color,
+            foregroundColor: color,
           ),
         );
       }
