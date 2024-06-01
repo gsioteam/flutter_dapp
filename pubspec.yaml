@@ -11,7 +11,10 @@ dependencies:
   flutter:
     sdk: flutter
   js_script:
-    git: https://github.com/gsioteam/js_script.git
+    git:
+      url: https://github.com/gsioteam/js_script.git
+      ref: d8f3cc52a95e7d24759039895008d5f96031f154
+
   xml_layout:
     git: https://github.com/gsioteam/xml_layout.git
   cached_network_image: ^3.2.1
